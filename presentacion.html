@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación REST APIs - Curso Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-height: 90vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 20px;
+            color: white;
+            overflow-y: auto;
+            border-right: 3px solid #764ba2;
+        }
+
+        .sidebar h2 {
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .checklist-item input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #4ade80;
+        }
+
+        .checklist-item input:checked + label {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-fill {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-completed {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .main-content {
+            padding: 50px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .slide-icon {
+            font-size: 48px;
+        }
+
+        .slide-title-container h1 {
+            font-size: 42px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .slide-title-container .module {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slide-objective {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            padding: 15px 20px;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .slide-content {
+            flex: 1;
+        }
+
+        .slide-content ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .slide-content li {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .slide-content li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .nested-list {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+
+        .nested-list li:before {
+            content: "◦";
+            color: #764ba2;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .slide-number {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .final-slide {
+            text-align: center;
+        }
+
+        .final-slide h1 {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .final-slide ul {
+            text-align: left;
+            max-width: 500px;
+            margin: 0 auto;
+            list-style: none;
+        }
+
+        .final-slide li {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .final-slide li:before {
+            content: "✓";
+            position: absolute;
+            left: 8px;
+            color: #22c55e;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .intro-slide {
+            text-align: center;
+        }
+
+        .intro-slide h1 {
+            font-size: 56px;
+            color: #667eea;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .intro-slide p {
+            font-size: 20px;
+            color: #666;
+            margin: 15px 0;
+            font-weight: 300;
+        }
+
+        .intro-slide .subtitle {
+            font-size: 16px;
+            color: #999;
+            margin-top: 40px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                max-height: none;
+            }
+
+            .sidebar {
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 3px solid #764ba2;
+            }
+
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            .slide-title-container h1 {
+                font-size: 32px;
+            }
+
+            .slide-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar con checklist -->
+        <div class="sidebar">
+            <h2>📋 Progreso</h2>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-0">
+                    <label for="check-0">Introducción</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-1">
+                    <label for="check-1">Módulo 1: Fundamentos Web</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-2">
+                    <label for="check-2">Módulo 2: HTTP en Profundidad</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-3">
+                    <label for="check-3">Módulo 3: ¿Qué es REST?</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-4">
+                    <label for="check-4">Módulo 4: Diseño APIs</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-5">
+                    <label for="check-5">Módulo 5: Formatos Datos</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-6">
+                    <label for="check-6">Módulo 6: Seguridad</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-7">
+                    <label for="check-7">Módulo 7: Pruebas</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-8">
+                    <label for="check-8">Módulo 8: Automatización</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-9">
+                    <label for="check-9">Módulo 9: Documentación</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-10">
+                    <label for="check-10">Módulo 10: Performance</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-11">
+                    <label for="check-11">Módulo 11: Arquitecturas</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-12">
+                    <label for="check-12">Módulo 12: Proyecto Final</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check-13">
+                    <label for="check-13">Resultado Final</label>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-text">Completado: <span id="progress-percent">0</span>%</div>
+                <div class="progress-fill">
+                    <div class="progress-completed" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <!-- Slide 0: Introducción -->
+            <div class="slide active">
+                <div class="intro-slide">
+                    <h1>🚀 Aprender REST APIs</h1>
+                    <p>Diseña, prueba y automatiza APIs profesionales</p>
+                    <p style="color: #667eea; font-size: 18px; font-weight: 600;">Curso Completo RESTful</p>
+                    <div class="subtitle">Navega por todos los módulos y completa tu aprendizaje</div>
+                </div>
+            </div>
+
+            <!-- Slide 1: Módulo 1 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🧱</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 1</div>
+                        <h1>Fundamentos de la Web</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Entender el contexto donde vive REST.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>¿Qué es la Web?</li>
+                        <li>Cliente vs Servidor</li>
+                        <li>¿Qué es HTTP?</li>
+                        <li>HTTPS y certificados SSL/TLS</li>
+                        <li>Stateless vs Stateful</li>
+                        <li>Arquitectura distribuida</li>
+                        <li>Request y Response (concepto general)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 2: Módulo 2 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🌐</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 2</div>
+                        <h1>Protocolo HTTP en Profundidad</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Dominar HTTP, base de REST.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Métodos HTTP
+                            <ul class="nested-list">
+                                <li>GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD</li>
+                            </ul>
+                        </li>
+                        <li>Idempotencia</li>
+                        <li>Safe Methods</li>
+                        <li>Headers HTTP (Request y Response)</li>
+                        <li>Status Codes HTTP
+                            <ul class="nested-list">
+                                <li>1xx, 2xx, 3xx, 4xx, 5xx</li>
+                            </ul>
+                        </li>
+                        <li>Content-Type y Accept</li>
+                        <li>Caching en HTTP</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 3: Módulo 3 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🧩</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 3</div>
+                        <h1>¿Qué es REST?</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Comprender REST como estilo arquitectónico.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Definición de REST</li>
+                        <li>REST vs SOAP</li>
+                        <li>REST vs RPC</li>
+                        <li>Principios de REST
+                            <ul class="nested-list">
+                                <li>Cliente-Servidor, Stateless, Cacheable</li>
+                                <li>Interfaz uniforme, Sistema en capas</li>
+                                <li>Código bajo demanda (opcional)</li>
+                            </ul>
+                        </li>
+                        <li>Qué es una API RESTful</li>
+                        <li>Qué NO es REST</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 4: Módulo 4 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🧭</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 4</div>
+                        <h1>Diseño de APIs RESTful</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Aprender a diseñar APIs limpias y profesionales.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Recursos</li>
+                        <li>URI vs URL</li>
+                        <li>Naming de endpoints (sustantivos, pluralización)</li>
+                        <li>Versionado de APIs (URI y Header versioning)</li>
+                        <li>Relaciones entre recursos</li>
+                        <li>Filtros, ordenamiento y paginación</li>
+                        <li>Búsquedas</li>
+                        <li>HATEOAS (concepto)</li>
+                        <li>Buenas prácticas REST</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 5: Módulo 5 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">📦</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 5</div>
+                        <h1>Formatos de Datos</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Entender cómo se intercambia la información.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>JSON (estructura, tipos de datos)</li>
+                        <li>XML (conceptos básicos)</li>
+                        <li>JSON vs XML</li>
+                        <li>Serialización y deserialización</li>
+                        <li>Encoding (UTF-8)</li>
+                        <li>Manejo de fechas y horas en APIs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 6: Módulo 6 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🔐</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 6</div>
+                        <h1>Seguridad en APIs REST</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Proteger APIs correctamente.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Autenticación vs Autorización</li>
+                        <li>Basic Auth</li>
+                        <li>API Keys</li>
+                        <li>Bearer Token</li>
+                        <li>JWT (JSON Web Token)</li>
+                        <li>OAuth 2.0 (conceptos)</li>
+                        <li>HTTPS obligatorio</li>
+                        <li>Rate Limiting</li>
+                        <li>CORS</li>
+                        <li>OWASP API Top 10</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 7: Módulo 7 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🧪</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 7</div>
+                        <h1>Pruebas de APIs REST</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Validar APIs como un QA profesional.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Tipos de pruebas en APIs
+                            <ul class="nested-list">
+                                <li>Funcionales, Negativas, Seguridad, Performance</li>
+                            </ul>
+                        </li>
+                        <li>Pruebas manuales con Postman</li>
+                        <li>Colecciones y entornos</li>
+                        <li>Variables</li>
+                        <li>Assertions</li>
+                        <li>Mock Servers</li>
+                        <li>Automatización básica de APIs</li>
+                        <li>Pruebas de contrato</li>
+                        <li>Data-driven testing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 8: Módulo 8 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🤖</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 8</div>
+                        <h1>Automatización de APIs REST</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Automatizar pruebas REST.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Automatización vs pruebas manuales</li>
+                        <li>Frameworks de testing de APIs
+                            <ul class="nested-list">
+                                <li>Python + Pytest, Java + RestAssured</li>
+                                <li>JavaScript + SuperTest</li>
+                            </ul>
+                        </li>
+                        <li>Estructura de un proyecto de automatización</li>
+                        <li>Manejo de tokens</li>
+                        <li>Validación de JSON</li>
+                        <li>Reports</li>
+                        <li>Integración con CI/CD</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 9: Módulo 9 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">⚙️</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 9</div>
+                        <h1>Documentación de APIs REST</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Documentar correctamente una API.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Importancia de la documentación</li>
+                        <li>OpenAPI / Swagger</li>
+                        <li>Anotaciones</li>
+                        <li>Ejecución desde Swagger UI</li>
+                        <li>Versionado de documentación</li>
+                        <li>Contract-first vs Code-first</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 10: Módulo 10 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🚀</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 10</div>
+                        <h1>Performance y Escalabilidad</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Evaluar APIs en producción.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Latencia</li>
+                        <li>Throughput</li>
+                        <li>Pruebas de carga</li>
+                        <li>Pruebas de estrés</li>
+                        <li>Herramientas
+                            <ul class="nested-list">
+                                <li>JMeter, K6</li>
+                            </ul>
+                        </li>
+                        <li>Cache (Redis, HTTP Cache)</li>
+                        <li>API Gateway</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 11: Módulo 11 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🧠</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 11</div>
+                        <h1>Arquitecturas Modernas</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Contextualizar REST hoy.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>REST en microservicios</li>
+                        <li>REST vs GraphQL</li>
+                        <li>REST vs gRPC</li>
+                        <li>APIs síncronas vs asíncronas</li>
+                        <li>Event-driven APIs</li>
+                        <li>Serverless APIs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 12: Módulo 12 -->
+            <div class="slide">
+                <div class="slide-header">
+                    <div class="slide-icon">🏁</div>
+                    <div class="slide-title-container">
+                        <div class="module">Módulo 12</div>
+                        <h1>Proyecto Final</h1>
+                    </div>
+                </div>
+                <div class="slide-objective">
+                    📌 Objetivo: Aplicar todo lo aprendido.
+                </div>
+                <div class="slide-content">
+                    <ul>
+                        <li>Diseño de una API REST</li>
+                        <li>Definición de recursos</li>
+                        <li>Seguridad</li>
+                        <li>Documentación</li>
+                        <li>Pruebas manuales</li>
+                        <li>Automatización básica</li>
+                        <li>Reporte final</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 13: Resultado Final -->
+            <div class="slide">
+                <div class="final-slide">
+                    <h1>🎯 Resultado Final</h1>
+                    <p style="font-size: 18px; color: #666; margin-bottom: 40px;">Al completar este temario podrás:</p>
+                    <ul>
+                        <li>Diseñar APIs REST profesionales</li>
+                        <li>Probar APIs como QA Senior</li>
+                        <li>Automatizar pruebas REST</li>
+                        <li>Detectar malas prácticas</li>
+                        <li>Entender APIs reales en producción</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <div class="navigation">
+                <button id="prev-btn" onclick="previousSlide()">← Atrás</button>
+                <span class="slide-counter">
+                    Slide <span class="slide-number" id="current-slide">1</span> / 14
+                </span>
+                <button id="next-btn" onclick="nextSlide()">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            // Actualizar numeración
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Actualizar estado de botones
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+            
+            // Auto-check el checkbox correspondiente
+            const checkboxes = document.querySelectorAll('.checklist-item input');
+            checkboxes.forEach(cb => cb.checked = false);
+            if (currentSlide < checkboxes.length) {
+                checkboxes[currentSlide].checked = true;
+            }
+            
+            updateProgress();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.checklist-item input');
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percent = Math.round((checked / checkboxes.length) * 100);
+            document.getElementById('progress-percent').textContent = percent;
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Event listeners para checkboxes
+        document.querySelectorAll('.checklist-item input').forEach(checkbox => {
+            checkbox.addEventListener('change', updateProgress);
+        });
+
+        // Inicializar
+        showSlide(0);
+    </script>
+</body>
+</html>
